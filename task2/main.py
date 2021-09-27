@@ -23,9 +23,9 @@ class Company:
         reports_shifted = ['\t' + '\n\t'.join(d.report_str().splitlines()) for d in self.departments.values()]
         return 'Company departments:\n' + '\n'.join(reports_shifted)
 
-    def __str__(self) -> str:
+    def hierarchies(self) -> str:
         """Constructs a string with department hierarchies (i.e. with team memberships)."""
-        departments_shifted = ['\t' + '\n\t'.join(str(d).splitlines()) for d in self.departments.values()]
+        departments_shifted = ['\t' + '\n\t'.join(d.hierarchy().splitlines()) for d in self.departments.values()]
         return 'Company departments:\n' + '\n'.join(departments_shifted)
 
     def write_csv(self, csv_name: str):
@@ -71,7 +71,7 @@ class Department:
         info = self.report()
         return '\n\t'.join([f'{row[0]}: {row[1]}' for row in info])
 
-    def __str__(self) -> str:
+    def hierarchy(self) -> str:
         """Constructs a string with team hierarchies."""
         return f'Department {self.name}.\n' + 'Teams:\n\t' + '\n\t'.join([str(team) for team in self.teams])
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         print('Wring command!')
 
     if cmd == 1:
-        print(company)
+        print(company.hierarchies())
     elif cmd == 2:
         print(company.report())
     else:
