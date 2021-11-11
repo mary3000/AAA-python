@@ -19,38 +19,27 @@ class ColorizeMixin:
 class Advert(ColorizeMixin, BaseAdvert):
     repr_color_code = 32  # green
 
-    def __init__(self, mapping, public=True):
+    def __init__(self, mapping):
         super().__init__()
 
         self.mapping = mapping
-        self.public = public
-
-        if not self.public:
-            return
-
-        if "price" in self.mapping:
-            if self.mapping["price"] < 0:
-                raise ValueError("price must be >= 0")
-        else:
-            self.mapping["price"] = 0
+        self.price = self.mapping.get("price", 0)
 
     def __getattr__(self, item):
-        if item[-1] == "_":
-            return Advert(self.mapping[item[:-1]], False)
-        return Advert(self.mapping[item], False)
+        next_layer = self.mapping[''.join(filter(str.isalnum, item))]
+        if isinstance(next_layer, dict):
+            return Advert(next_layer)
+        return next_layer
 
-    def __setattr__(self, key, value):
-        if key == "mapping":
-            self.__dict__[key] = value
-            return
-        if key == "price" and value < 0:
+    @property
+    def price(self):
+        return self._price
+
+    @price.setter
+    def price(self, value):
+        if value < 0:
             raise ValueError("price must be >= 0")
-        self.__dict__[key] = value
-
-    def __str__(self):
-        if self.public:
-            return self.__repr__()
-        return f'{self.mapping}'
+        self._price = value
 
 
 if __name__ == '__main__':
@@ -100,3 +89,7 @@ if __name__ == '__main__':
     corgi_ad = Advert(corgi_map)
     print(corgi_ad)
     print(corgi_ad.class_)
+
+# в ините обработка в цикле:
+# dict | not dict? -> property ot price, ... ?
+# property - getter and setter
